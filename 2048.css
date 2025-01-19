@@ -1,0 +1,127 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+}
+
+hr {
+    width: 500px;
+}
+
+#board {
+    width: 400px;
+    height: 400px;
+    background-color: #cdc1b5;
+    border: 6px solid #bbada0;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    position: relative; /* Added to allow absolute positioning of tiles */
+}
+
+.tile {
+    width: 90px;
+    height: 90px;
+    border: 5px solid #bbada0;
+    font-size: 40px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    position: absolute; /* Added for absolute positioning */
+}
+
+/* colored tiles */
+.x2 {
+    background-color: #eee4da;
+    color: #727371;
+}
+
+.x4 {
+    background-color: #ece0ca;
+    color: #727371;
+}
+
+.x8 {
+    background-color: #f4b17a;
+    color: white;
+}
+
+.x16 {
+    background-color: #f59575;
+    color: white;
+}
+
+.x32 {
+    background-color: #f57c5f;
+    color: white;
+}
+
+.x64 {
+    background-color: #f65d3b;
+    color: white;
+}
+
+.x128 {
+    background-color: #edce71;
+    color: white;
+}
+
+.x256 {
+    background-color: #edcc63;
+    color: white;
+}
+
+.x512 {
+    background-color: #edc651;
+    color: white;
+}
+
+.x1024 {
+    background-color: #eec744;
+    color: white;
+}
+
+.x2048 {
+    background-color: #ecc230;
+    color: white;
+}
+
+.x4096 {
+    background-color: #fe3d3d;
+    color: white;
+}
+
+.x8192 {
+    background-color: #ff2020;
+    color: white;
+}
+
+#registration {
+    margin: 20px;
+}
+
+#registration h2 {
+    margin: 10px 0;
+}
+
+#registration form {
+    margin: 10px 0;
+}
+
+#registration input {
+    display: block;
+    margin: 10px auto;
+    padding: 10px;
+    font-size: 16px;
+}
+
+#registration button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#game {
+    margin-top: 20px;
+}

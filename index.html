@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 GAME</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: url('background.jpg') no-repeat;
+            background-size: cover;
+            background-position: center;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 100px;
+            background: rgb(61, 27, 27);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 99;
+        }
+
+        .logo {
+            font-size: 2em;
+            color: #fff;
+            user-select: none;
+        }
+
+        .navigation a {
+            position: relative;
+            font-size: 1.1em;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            margin-left: 40px;
+            cursor: pointer;
+        }
+
+        .navigation a::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -6px;
+            width: 100%;
+            height: 3px;
+            background: #fff;
+            border-radius: 5px;
+            transform-origin: right;
+            transform: scaleX(0);
+            transition: transform .5s;
+        }
+
+        .navigation a:hover::after {
+            transform-origin: left;
+            transform: scaleX(1);
+        }
+
+        .navigation .btnlogin-popup {
+            width: 130px;
+            height: 50px;
+            background: transparent;
+            border: 2px solid #fff;
+            outline: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            color: #fff;
+            font-weight: 500;
+            margin-left: 40px;
+            transition: .5s;
+        }
+
+        .navigation .btnlogin-popup:hover {
+            background: #fff;
+            color: rgb(61, 27, 27);
+        }
+
+        .popup-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.5);
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity .5s, visibility .5s;
+            z-index: 100;
+        }
+
+        .popup-wrapper.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .popup-content {
+            position: relative;
+            background: transparent;
+            padding: 10px; 
+            max-width: 60%; 
+            max-height: 80%; 
+            overflow: auto; 
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, .5);
+            border: 2px solid rgba(0, 0, 0, 0.2); 
+        }
+
+        .popup-content img {
+            width: 100%; 
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 45px;
+            height: 45px;
+            background: rgb(61, 27, 27);
+            font-size: 3em;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom-left-radius: 20px;
+            cursor: pointer;
+            z-index: 1;
+        }
+
+        .popup-board {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotateY(180deg) scale(0.8);
+            background: transparent;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            width: 70%;
+            max-width: 900px;
+            height: 70%; /* Ensure the container has a fixed height */
+            max-height: 80%;
+            overflow: auto; /* Enable scrolling */
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgb(61, 27, 27);
+            color: rgb(61, 27, 27);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.4s ease;
+            animation: rotateIn 0.8s ease forwards;
+        }
+
+        .popup-board.active {
+            display: block;
+            transform: translate(-50%, -50%) rotateY(0deg) scale(1);
+            opacity: 1;
+        }
+
+        .popup-board h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .popup-close.leaderboard-close {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 45px;
+            height: 45px;
+            background: rgb(61, 27, 27);
+            font-size: 3em;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom-left-radius: 20px;
+            cursor: pointer;
+            z-index: 1;
+        }
+
+        .popup-close.leaderboard-close:hover {
+            transform: scale(1); /* Scale up on hover */
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .leaderboard-table th, .leaderboard-table td {
+            padding: 12px 20px;
+            text-align: left;
+        }
+
+        .leaderboard-table th {
+            background-color: #ffffff62;
+            font-weight: bold;
+        }
+
+        .leaderboard-table tbody tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .leaderboard-table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes rotateIn {
+            0% {
+                transform: translate(-50%, -50%) rotateY(180deg) scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) rotateY(0deg) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .wrapper {
+            position: relative;
+            width: 400px;
+            height: 440px;
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, .5);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 30px rgba(0, 0, 0, .5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            transform: scale(0);
+            transition: transform .5s ease, height .2s ease;
+        }
+
+        .wrapper.active-popup {
+            transform: scale(1);
+        }
+
+        .wrapper.active {
+            height: 520px;
+        }
+
+        .wrapper .form-box {
+            width: 100%;
+            padding: 40px;
+        }
+
+        .wrapper .form-box.login {
+            transition: transform .18s ease;
+            transform: translateX(0);
+        }
+
+        .wrapper.active .form-box.login {
+            transition: none;
+            transform: translateX(-400px);
+        }
+
+        .wrapper .form-box.register {
+            position: absolute;
+            transition: none;
+            transform: translateX(400px);
+        }
+
+        .wrapper.active .form-box.register {
+            transition: transform .18s ease;
+            transform: translateX(0);
+        }
+
+        .wrapper .icon-close {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 45px;
+            height: 45px;
+            background: rgb(61, 27, 27);
+            font-size: 2em;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom-left-radius: 20px;
+            cursor: pointer;
+            z-index: 1;
+        }
+
+        .form-box h2 {
+            font-size: 2em;
+            color: rgb(61, 27, 27);
+            text-align: center;
+        }
+
+        .input-box {
+            position: relative;
+            width: 100%;
+            height: 50px;
+            border-bottom: 2px solid rgb(61, 27, 27);
+            margin: 30px 0;
+        }
+
+        .input-box label {
+            position: absolute;
+            top: 50%;
+            left: 5px;
+            transform: translateY(-50%);
+            font-size: 1em;
+            color: rgb(61, 27, 27);
+            font-weight: 500;
+            pointer-events: none;
+            transition: .5s;
+        }
+
+        .input-box input:focus ~ label,
+        .input-box input:valid ~ label {
+            top: -5px;
+        }
+
+        .input-box input {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 1em;
+            color: rgb(61, 27, 27);
+            font-weight: 600;
+            padding: 0 35px 0 5px;
+        }
+
+        .input-box .icon {
+            position: absolute;
+            right: 8px;
+            font-size: 1.2em;
+            color: rgb(61, 27, 27);
+            line-height: 57px;
+        }
+
+        .remember-forgot {
+            font-size: .9em;
+            color: rgb(61, 27, 27);
+            font-weight: 500;
+            margin: -15px 0 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .remember-forgot label input {
+            accent-color: rgb(61, 27, 27);
+            margin-right: 3px;
+        }
+
+        .remember-forgot a {
+            color: rgb(61, 27, 27);
+            text-decoration: none;
+        }
+
+        .remember-forgot a:hover {
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            height: 45px;
+            background: rgb(61, 27, 27);
+            border: none;
+            outline: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .login-register {
+            font-size: .9em;
+            color: rgb(61, 27, 27);
+            text-align: center;
+            font-weight: 500;
+            margin: 25px 0 10px;
+        }
+
+        .login-register p a {
+            color: rgb(61, 27, 27);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-register p a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h2 class="logo">2048 GAME</h2>
+        <nav class="navigation">
+            <a href="#" class="info-link">Info</a>
+            <a href="#" class="leaderboard-link">Leaderboard</a>
+            <button class="btnlogin-popup">Login</button>
+        </nav>
+    </header>
+
+    <div class="popup-wrapper" id="info-popup">
+        <div class="popup-content">
+            <span class="popup-close">&times;</span>
+            <img src="info.jpg" alt="Info Image">
+        </div>
+    </div>
+
+    <div class="popup-board" id="leaderboard-popup">
+        <div class="popup-ranking">
+            <span class="popup-close leaderboard-close">&times;</span>
+            <h2>Leaderboard</h2>
+            <table id="leaderboard-table" class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Leaderboard entries will be added here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <span class="icon-close"><ion-icon name="close"></ion-icon></span>
+        <div class="form-box login">
+            <h2>Login</h2>
+            <form id="login-form">
+                <div class="input-box">
+                    <span class="icon"><ion-icon name="mail"></ion-icon></span>
+                    <input type="text" required id="login-email">
+                    <label>Email</label>
+                </div>
+                <div class="input-box">
+                    <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
+                    <input type="password" required id="login-password">
+                    <label>Password</label>
+                </div>
+                <div class="remember-forgot">
+                    <label><input type="checkbox" required>Remember me</label>
+                    <a href="#">Forgot Password?</a>
+                </div>
+                <button type="submit" class="btn">Login</button>
+                <div class="login-register">
+                    <p>Don't have an account? <a href="#" class="register-link">Register</a></p>
+                </div>
+            </form>
+        </div>
+
+        <div class="form-box register">
+            <h2>Registration</h2>
+            <form id="register-form">
+                <div class="input-box">
+                    <span class="icon"><ion-icon name="person"></ion-icon></span>
+                    <input type="text" required id="register-username">
+                    <label>Username</label>
+                </div>
+                <div class="input-box">
+                    <span class="icon"><ion-icon name="mail"></ion-icon></span>
+                    <input type="text" required id="register-email">
+                    <label>Email</label>
+                </div>
+                <div class="input-box">
+                    <span class="icon"><ion-icon name="lock-closed"></ion-icon></span>
+                    <input type="password" required id="register-password">
+                    <label>Password</label>
+                </div>
+                <div class="remember-forgot">
+                    <label><input type="checkbox">I agree to the terms & conditions</label>
+                </div>
+                <button type="submit" class="btn">Register</button>
+                <div class="login-register">
+                    <p>Already have an account? <a href="#" class="login-link">Login</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    
+    <script>
+        const wrapper = document.querySelector('.wrapper');
+        const register = document.querySelector('.form-box.register');
+        const loginlink = document.querySelector('.login-link');
+        const registerlink = document.querySelector('.register-link');
+        const btnPopup = document.querySelector('.btnlogin-popup');
+        const iconClose = document.querySelector('.icon-close');
+        const infoLink = document.querySelector('.info-link');
+        const infoPopup = document.getElementById('info-popup');
+        const popupClose = document.querySelector('.popup-close');
+        const leaderboardLink = document.querySelector('.leaderboard-link');
+        const leaderboardPopup = document.getElementById('leaderboard-popup');
+        const leaderboardClose = document.querySelector('.leaderboard-close');
+        
+        registerlink.addEventListener('click', () => {
+            wrapper.classList.add('active');
+        });
+
+        loginlink.addEventListener('click', () => {
+            wrapper.classList.remove('active');
+        });
+
+        btnPopup.addEventListener('click', () => {
+            wrapper.classList.add('active-popup');
+        });
+
+        iconClose.addEventListener('click', () => {
+            wrapper.classList.remove('active-popup');
+        });
+
+        infoLink.addEventListener('click', () => {
+            infoPopup.classList.add('active');
+        });
+
+        popupClose.addEventListener('click', () => {
+            infoPopup.classList.remove('active');
+        });
+
+        document.getElementById('register-form').addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            let username = document.getElementById("register-username").value;
+            let email = document.getElementById("register-email").value;
+            let password = document.getElementById("register-password").value;
+
+            if (username === "" || email === "" || password === "") {
+                alert("Ensure you input a value in all fields!");
+                return;
+            }
+
+            var apiUrl = 'http://localhost:3000/register';
+
+            fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username, email, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    throw new Error(data.message || 'Unknown error');
+                }
+                alert(data.message);
+            })
+            .catch(err => {
+                console.error(err);
+                alert('An error occurred: ' + err.message);
+            });
+        });
+
+        document.getElementById('login-form').addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        let email = document.getElementById("login-email").value;
+        let password = document.getElementById("login-password").value;
+
+        if (email === "" || password === "") {
+            alert("Ensure you input a value in both fields!");
+            return;
+        }
+    
+        var apiUrl = "http://localhost:3000/login";
+
+        fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email, password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                throw new Error(data.message || 'Unknown error');
+            }
+            alert(data.message);
+            localStorage.setItem('token', data.token);
+            // Redirect to game.html after successful login
+            window.location.href = "2048.html";
+        })
+        .catch(err => {
+            console.error(err);
+            alert('An error occurred: ' + err.message);
+        });
+    });
+
+    leaderboardLink.addEventListener('click', (event) => {
+        event.preventDefault();
+        fetchLeaderboard();
+        leaderboardPopup.classList.add('active');
+    });
+
+    leaderboardClose.addEventListener('click', () => {
+        leaderboardPopup.classList.remove('active');
+    });
+
+    function fetchLeaderboard() {
+    fetch('http://localhost:3000/leaderboard')
+        .then(response => response.json())
+        .then(data => {
+            const leaderboardTable = document.getElementById('leaderboard-table').querySelector('tbody');
+            leaderboardTable.innerHTML = ''; // Clear previous entries
+            data.forEach((entry, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${entry.username}</td>
+                    <td>${entry.score}</td>
+                `;
+                leaderboardTable.appendChild(row);
+            });
+        })
+        .catch(error => console.error('Error fetching leaderboard:', error));
+}
+    </script>
+</body>
+</html>
